@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>학교 Q&A 플랫폼</title>
+<style>
+body { font-family: Arial; background:#f4f6f8; margin:0; padding:0; }
+.header { background:#2c3e50; color:white; padding:15px; text-align:center; font-size:22px; }
+.menu { margin:20px; }
+input, button, select { padding:5px; margin:5px 0; }
+.question { padding:10px; margin:10px 0; border-radius:8px; font-weight:bold; background:#fff; }
+.solved { background-color:#d4edda; color:#155724; }
+.unsolved { background-color:#f8d7da; color:#721c24; }
+</style>
+</head>
+<body>
+
+<div class="header">학교 Q&A 플랫폼</div>
+
+<!-- 로그인 영역 -->
+<div id="auth">
+  <h3>회원가입 / 로그인</h3>
+  이메일: <input type="email" id="email"><br>
+  비밀번호: <input type="password" id="password"><br>
+  닉네임: <input type="text" id="nickname"><br>
+  <button onclick="signup()">회원가입</button>
+  <button onclick="login()">로그인</button>
+</div>
+
+<!-- 질문 작성 영역 -->
+<div id="questionForm" style="display:none;">
+  <h3>질문 작성</h3>
+  과목:
+  <select id="subject">
+    <option>수학</option>
+    <option>영어</option>
+    <option>과학</option>
+    <option>기타</option>
+  </select><br>
+  질문 내용:<br>
+  <textarea id="questionText" rows="3" cols="50"></textarea><br>
+  <button onclick="addQuestion()">질문 등록 (+10P)</button>
+</div>
+
+<!-- 질문 목록 -->
+<div id="questionsBoard">
+  <h3>질문 목록</h3>
+  <div id="questions"></div>
+</div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+
+// Firebase 설정
+const firebaseConfig = {
+  apiKey: "AIzaSyC9y33YK_3b5NMfAk6dZi2jDMIi_dDXklQ",
+  authDomain: "site4school-6affe.firebaseapp.com",
+  projectId: "site4school-6affe",
+  storageBucket: "site4school-6affe.firebasestorage.app",
+  messagingSenderId: "527337035288",
+  appId: "1:527337035288:web:290da151584a31eb90d56d",
+  measurementId: "G-PLB6VXX955"
+};
+
+// Firebase 초기화
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// 회원가입
+async function signup() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  const nickname = document.getElementById("nickname").value;
+  try {
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    alert("회원가입 완료! 로그인 후 사용하세요.");
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// 로그인
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+  try {
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
+    alert("로그인 성공!");
+    document.getElementById("auth").style.display = "none";
+    document.getElementById("questionForm").style.display = "block";
+    loadQuestions();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// 질문 추가
+async function addQuestion() {
+  const text = document.getElementById("questionText").value;
+  const subject = document.getElementById("subject").value;
+  try {
+    await addDoc(collection(db, "questions"), {
+      subject: subject,
+      text: text,
+      status: "unsolved"
+    });
+    alert("질문 등록 완료! (+10P)");
+    loadQuestions();
+    document.getElementById("questionText").value = "";
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// 질문 목록 불러오기
+async function loadQuestions() {
+  const querySnapshot = await getDocs(collection(db, "questions"));
+  const container = document.getElementById("questions");
+  container.innerHTML = "";
+  querySnapshot.forEach((doc) => {
+    const q = doc.data();
+    const div = document.createElement("div");
+    div.className = "question " + q.status;
+    div.innerText = `🔹 [${q.status === "solved" ? "해결됨" : "미해결"}] ${q.subject} - ${q.text}`;
+    container.appendChild(div);
+  });
+}
+</script>
+
+</body>
+</html>
