@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>로그인</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 30px; }
+    input { width: 100%; padding: 10px; margin-bottom: 10px; }
+    button { padding: 10px 20px; cursor: pointer; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+<h2>로그인</h2>
+
+<input id="email" placeholder="이메일 입력">
+<input id="password" type="password" placeholder="비밀번호">
+
+<p class="error" id="errorLogin"></p>
+
+<button onclick="handleLogin()">로그인</button>
+<p><a href="signup.html">회원가입으로 가기</a></p>
+
+<script type="module">
+  import { auth } from "./firebase.js";
+  import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+
+  async function handleLogin() {
+    const errorLogin = document.getElementById("errorLogin");
+    errorLogin.innerText = "";
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+      errorLogin.innerText = "이메일과 비밀번호를 입력해주세요.";
+      return;
+    }
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      window.location.href = "main.html";
+    } catch (err) {
+      errorLogin.innerText = "로그인에 실패했습니다. 이메일/비밀번호를 확인하세요.";
+    }
+  }
+</script>
+
+</body>
+</html>
