@@ -1,8 +1,8 @@
 // js/signup.js
 
 import { auth, db } from "../firebase.js";
-import { createUserWithEmailAndPassword } from
-"https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { createUserWithEmailAndPassword }
+  from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 import {
   doc, setDoc, query, getDocs, collection, where
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
@@ -23,24 +23,33 @@ btnSignup.addEventListener("click", async () => {
     errorMsg.innerText = "모든 항목을 입력해주세요.";
     return;
   }
+
   if (password.length < 6) {
     errorMsg.innerText = "비밀번호는 최소 6자리 이상이어야 합니다.";
     return;
   }
 
-  // 닉네임 중복 검사
-  const q = query(collection(db, "users"),
-    where("nicknameLower","==", nickname.toLowerCase()));
-  const snapshot = await getDocs(q);
-  if (!snapshot.empty) {
-    errorMsg.innerText = "이미 사용 중인 닉네임입니다.";
-    return;
-  }
-
   try {
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    // 🔹 닉네임 중복 검사
+    const q = query(
+      collection(db, "users"),
+      where("nicknameLower", "==", nickname.toLowerCase())
+    );
+
+    const snapshot = await getDocs(q);
+
+    if (!snapshot.empty) {
+      errorMsg.innerText = "이미 사용 중인 닉네임입니다.";
+      return;
+    }
+
+    // 🔹 회원 생성
+    const userCredential =
+      await createUserWithEmailAndPassword(auth, email, password);
+
     const uid = userCredential.user.uid;
 
+    // 🔹 Firestore에 사용자 정보 저장
     await setDoc(doc(db, "users", uid), {
       email,
       nickname,
@@ -54,7 +63,9 @@ btnSignup.addEventListener("click", async () => {
     });
 
     alert("회원가입 완료! 메인 화면으로 이동합니다.");
-    window.location.href = "../main.html";
+
+    // 🔥 절대경로 사용
+    window.location.href = "/sbh_qna/main.html";
 
   } catch (err) {
     errorMsg.innerText = err.message;
