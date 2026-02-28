@@ -8,6 +8,14 @@
     input { width: 100%; padding: 10px; margin-bottom: 10px; }
     button { padding: 10px 20px; cursor: pointer; }
     .error { color: red; }
+    .input-wrap { position: relative; }
+    .toggle {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
@@ -15,19 +23,27 @@
 <h2>회원가입</h2>
 
 <input id="email" placeholder="이메일 입력">
-<input id="password" type="password" placeholder="비밀번호 (6자리 이상)">
+
+<div class="input-wrap">
+  <input id="password" type="password" placeholder="비밀번호 (6자리 이상)">
+  <span id="togglePassword1" class="toggle">👁</span>
+</div>
+
+<div class="input-wrap">
+  <input id="passwordConfirm" type="password" placeholder="비밀번호 확인">
+  <span id="togglePassword2" class="toggle">👁</span>
+</div>
+
 <input id="nickname" placeholder="닉네임">
 <input id="realname" placeholder="본명">
 <input id="studentid" placeholder="학번">
 
 <p class="error" id="errorMsg"></p>
 
-<!-- onclick 제거, ID만 남김 -->
 <button id="btnSignup">회원가입</button>
 
 <p><a href="login.html">로그인으로 이동</a></p>
 
-<!-- signup.js에서 클릭 처리 -->
 <script type="module" src="js/signup.js"></script>
 
 </body>
