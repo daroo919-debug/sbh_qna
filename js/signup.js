@@ -1,5 +1,7 @@
 // js/signup.js
 
+console.log("🔥 signup.js 실행됨");
+
 import { auth, db } from "../firebase.js";
 import { createUserWithEmailAndPassword }
   from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
