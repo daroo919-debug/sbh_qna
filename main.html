@@ -156,10 +156,8 @@ body {
       - 학번 공개 금지
     </div>
 
-    <div class="card">
-      <div class="card-title">수학 수행평가 언제인가요?</div>
-      <div class="card-meta">작성자: 익명 | 답변 3개</div>
-    </div>
+    <!-- 🔥 질문 리스트 출력 영역 -->
+    <div id="questionList"></div>
 
   </div>
 
@@ -169,19 +167,22 @@ body {
   import { auth, db } from "./firebase.js";
   import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { doc, getDoc }
+  import { collection, getDocs, doc, getDoc }
     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
   const nicknameEl = document.querySelector(".nickname");
   const pointsEl = document.querySelector(".points");
   const logoutBtn = document.querySelector(".logout");
+  const questionList = document.getElementById("questionList");
 
+  // 🔹 로그인 상태 확인
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = "/sbh_qna/login.html";
       return;
     }
 
+    // 🔹 유저 정보 불러오기
     const docRef = doc(db, "users", user.uid);
     const docSnap = await getDoc(docRef);
 
@@ -190,8 +191,35 @@ body {
       nicknameEl.innerText = data.nickname;
       pointsEl.innerText = data.points + "P";
     }
+
+    // 🔹 질문 목록 불러오기
+    loadQuestions();
   });
 
+  // 🔹 질문 불러오기 함수
+  async function loadQuestions() {
+    const querySnapshot = await getDocs(collection(db, "questions"));
+
+    questionList.innerHTML = "";
+
+    querySnapshot.forEach((document) => {
+      const data = document.data();
+
+      const card = document.createElement("div");
+      card.className = "card";
+
+      card.innerHTML = `
+        <div class="card-title">${data.title}</div>
+        <div class="card-meta">
+          작성자: ${data.nickname} | 답변 ${data.answerCount || 0}개
+        </div>
+      `;
+
+      questionList.appendChild(card);
+    });
+  }
+
+  // 🔹 로그아웃
   logoutBtn.addEventListener("click", async () => {
     await signOut(auth);
     window.location.href = "/sbh_qna/login.html";
