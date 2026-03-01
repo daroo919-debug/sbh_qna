@@ -1,125 +1,138 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>메인 화면</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f5f5f5;
-    }
+<meta charset="UTF-8">
+<title>SBH 문답 시스템</title>
 
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 15px 20px;
-      background-color: #2c3e50;
-      color: white;
-    }
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f4f7;
+}
 
-    .user-info {
-      font-size: 14px;
-    }
+/* 상단 바 */
+header {
+  height: 60px;
+  background: #1f2937;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+}
 
-    .logout {
-      cursor: pointer;
-      background: #e74c3c;
-      padding: 6px 10px;
-      border-radius: 5px;
-    }
+/* 전체 레이아웃 */
+.layout {
+  display: flex;
+  height: calc(100vh - 60px);
+}
 
-    .container {
-      padding: 20px;
-    }
+/* 사이드바 */
+.sidebar {
+  width: 220px;
+  background: white;
+  border-right: 1px solid #ddd;
+  padding-top: 20px;
+}
 
-    .ask-btn {
-      background: #3498db;
-      color: white;
-      padding: 10px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      display: inline-block;
-      margin-bottom: 20px;
-    }
+.menu-item {
+  padding: 15px 20px;
+  cursor: pointer;
+}
 
-    .card {
-      background: white;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+.menu-item:hover {
+  background: #f3f4f6;
+}
 
-    .card-title {
-      font-weight: bold;
-      margin-bottom: 5px;
-    }
+/* 메인 영역 */
+.main {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+}
 
-    .card-meta {
-      font-size: 12px;
-      color: gray;
-    }
-  </style>
+/* 배너 */
+.banner {
+  background: #2563eb;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* 공지 */
+.notice {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+
+/* 질문 카드 */
+.card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.card-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.card-meta {
+  font-size: 12px;
+  color: gray;
+}
+</style>
 </head>
+
 <body>
 
 <header>
   <div><b>📘 SBH 문답 시스템</b></div>
-  <div class="user-info">
-    닉네임: <span id="nickname">불러오는 중...</span> |
-    포인트: <span id="points">0</span>
-    <span class="logout" id="logoutBtn">로그아웃</span>
+  <div>
+    포인트: 120 | 홍길동
   </div>
 </header>
 
-<div class="container">
+<div class="layout">
 
-  <div class="ask-btn">+ 질문하기</div>
+  <div class="sidebar">
+    <div class="menu-item">📄 문답</div>
+    <div class="menu-item">🏆 랭킹</div>
+    <div class="menu-item">💰 포인트 관리</div>
+    <div class="menu-item">👤 마이페이지</div>
+  </div>
 
-  <div id="questionList">
-    <div class="card">
-      <div class="card-title">예시 질문 제목</div>
-      <div class="card-meta">작성자: 홍길동 | 답변 0개</div>
+  <div class="main">
+
+    <div class="banner">
+      📢 이번 주 질문 이벤트 진행 중!
     </div>
+
+    <div class="notice">
+      <b>공지</b><br>
+      - 비속어 사용 금지<br>
+      - 학번 공개 금지
+    </div>
+
+    <div class="card">
+      <div class="card-title">수학 수행평가 언제인가요?</div>
+      <div class="card-meta">작성자: 익명 | 답변 3개</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">2학년 체육대회 날짜?</div>
+      <div class="card-meta">작성자: 김철수 | 답변 1개</div>
+    </div>
+
   </div>
 
 </div>
-
-<script type="module">
-  import { auth, db } from "./firebase.js";
-  import { onAuthStateChanged, signOut }
-    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { doc, getDoc }
-    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-  const nicknameEl = document.getElementById("nickname");
-  const pointsEl = document.getElementById("points");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "/sbh_qna/login.html";
-      return;
-    }
-
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      nicknameEl.innerText = data.nickname;
-      pointsEl.innerText = data.points;
-    }
-  });
-
-  logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "/sbh_qna/login.html";
-  });
-
-</script>
 
 </body>
 </html>
