@@ -246,8 +246,8 @@ await addDoc(collection(db, "questions"), {
 
     questionList.innerHTML = "";
 
-querySnapshot.forEach((doc) => {
-  const data = doc.data();
+querySnapshot.forEach((questionDoc) => {
+  const data = questionDoc.data();
 
   const card = document.createElement("div");
       card.className = "card";
@@ -266,7 +266,7 @@ if (auth.currentUser && auth.currentUser.uid === data.uid) {
   deleteBtn.style.padding = "4px 8px";
 
   deleteBtn.addEventListener("click", async () => {
-    await deleteDoc(doc(db, "questions", document.id));
+  await deleteDoc(doc(db, "questions", questionDoc.id));
     loadQuestions();
   });
 
@@ -286,5 +286,6 @@ if (auth.currentUser && auth.currentUser.uid === data.uid) {
 
 </body>
 </html>
+
 
 
