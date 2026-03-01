@@ -183,9 +183,8 @@ body {
   import { auth, db } from "./firebase.js";
   import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-  import { collection, getDocs, doc, getDoc }
-    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
+import { collection, getDocs, doc, getDoc, addDoc }
+from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
   const nicknameEl = document.querySelector(".nickname");
   const pointsEl = document.querySelector(".points");
   const logoutBtn = document.querySelector(".logout");
@@ -272,5 +271,6 @@ querySnapshot.forEach((doc) => {
 
 </body>
 </html>
+
 
 
