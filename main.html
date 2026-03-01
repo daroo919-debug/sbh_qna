@@ -11,7 +11,6 @@ body {
   background: #f9fafb;
 }
 
-/* ===== 헤더 ===== */
 .header {
   height: 70px;
   padding: 0 40px;
@@ -59,13 +58,11 @@ body {
   background: #e5e7eb;
 }
 
-/* ===== 레이아웃 ===== */
 .layout {
   display: flex;
   min-height: calc(100vh - 70px);
 }
 
-/* 사이드바 */
 .sidebar {
   width: 220px;
   background: #ffffff;
@@ -83,13 +80,11 @@ body {
   background: #f3f4f6;
 }
 
-/* 메인 영역 */
 .main {
   flex: 1;
   padding: 30px;
 }
 
-/* 배너 */
 .banner {
   background: #2563eb;
   color: white;
@@ -98,7 +93,6 @@ body {
   margin-bottom: 20px;
 }
 
-/* 공지 */
 .notice {
   background: white;
   padding: 15px;
@@ -107,7 +101,6 @@ body {
   border: 1px solid #e5e7eb;
 }
 
-/* 질문 카드 */
 .card {
   background: white;
   padding: 15px;
@@ -136,8 +129,8 @@ body {
   </div>
 
   <div class="header-right">
-    <div class="points">120P</div>
-    <div class="nickname">홍길동</div>
+    <div class="points">0P</div>
+    <div class="nickname">불러오는 중...</div>
     <div class="logout">로그아웃</div>
   </div>
 </header>
@@ -168,14 +161,10 @@ body {
       <div class="card-meta">작성자: 익명 | 답변 3개</div>
     </div>
 
-    <div class="card">
-      <div class="card-title">2학년 체육대회 날짜?</div>
-      <div class="card-meta">작성자: 김철수 | 답변 1개</div>
-    </div>
-
   </div>
 
 </div>
+
 <script type="module">
   import { auth, db } from "./firebase.js";
   import { onAuthStateChanged, signOut }
@@ -208,7 +197,6 @@ body {
     window.location.href = "/sbh_qna/login.html";
   });
 </script>
+
 </body>
 </html>
-
-
