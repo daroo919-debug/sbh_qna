@@ -3,20 +3,122 @@
 <head>
   <meta charset="UTF-8">
   <title>메인 화면</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f5f5f5;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background-color: #2c3e50;
+      color: white;
+    }
+
+    .user-info {
+      font-size: 14px;
+    }
+
+    .logout {
+      cursor: pointer;
+      background: #e74c3c;
+      padding: 6px 10px;
+      border-radius: 5px;
+    }
+
+    .container {
+      padding: 20px;
+    }
+
+    .ask-btn {
+      background: #3498db;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+
+    .card-meta {
+      font-size: 12px;
+      color: gray;
+    }
+  </style>
 </head>
 <body>
 
-<h1>메인 화면 (로그인 성공!)</h1>
-<p>로그인 후 보게 될 질문 목록 페이지입니다.</p>
+<header>
+  <div><b>📘 SBH 문답 시스템</b></div>
+  <div class="user-info">
+    닉네임: <span id="nickname">불러오는 중...</span> |
+    포인트: <span id="points">0</span>
+    <span class="logout" id="logoutBtn">로그아웃</span>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="ask-btn">+ 질문하기</div>
+
+  <div id="questionList">
+    <div class="card">
+      <div class="card-title">예시 질문 제목</div>
+      <div class="card-meta">작성자: 홍길동 | 답변 0개</div>
+    </div>
+  </div>
+
+</div>
 
 <script type="module">
-  import { auth } from "./firebase.js";
+  import { auth, db } from "./firebase.js";
+  import { onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  auth.onAuthStateChanged(user => {
+  const nicknameEl = document.getElementById("nickname");
+  const pointsEl = document.getElementById("points");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      window.location.href = "login.html";
+      window.location.href = "/sbh_qna/login.html";
+      return;
+    }
+
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      nicknameEl.innerText = data.nickname;
+      pointsEl.innerText = data.points;
     }
   });
+
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "/sbh_qna/login.html";
+  });
+
 </script>
 
 </body>
