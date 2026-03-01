@@ -176,7 +176,39 @@ body {
   </div>
 
 </div>
+<script type="module">
+  import { auth, db } from "./firebase.js";
+  import { onAuthStateChanged, signOut }
+    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+  import { doc, getDoc }
+    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
+  const nicknameEl = document.querySelector(".nickname");
+  const pointsEl = document.querySelector(".points");
+  const logoutBtn = document.querySelector(".logout");
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = "/sbh_qna/login.html";
+      return;
+    }
+
+    const docRef = doc(db, "users", user.uid);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      nicknameEl.innerText = data.nickname;
+      pointsEl.innerText = data.points + "P";
+    }
+  });
+
+  logoutBtn.addEventListener("click", async () => {
+    await signOut(auth);
+    window.location.href = "/sbh_qna/login.html";
+  });
+</script>
 </body>
 </html>
+
 
