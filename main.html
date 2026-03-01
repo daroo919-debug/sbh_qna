@@ -156,23 +156,23 @@ body {
       - 학번 공개 금지
     </div>
 
-<!-- 🔥 질문 작성 박스 -->
-<div class="card">
-  <input 
-    type="text" 
-    id="questionInput"
-    placeholder="질문을 입력하세요"
-    style="width: 75%; padding: 8px;"
-  />
-  <button 
-    id="submitQuestion"
-    style="padding: 8px 12px; margin-left: 10px;"
-  >
-    등록
-  </button>
-</div>
-    
-    <!-- 🔥 질문 리스트 출력 영역 -->
+    <!-- 질문 작성 -->
+    <div class="card">
+      <input 
+        type="text" 
+        id="questionInput"
+        placeholder="질문을 입력하세요"
+        style="width: 75%; padding: 8px;"
+      />
+      <button 
+        id="submitQuestion"
+        style="padding: 8px 12px; margin-left: 10px;"
+      >
+        등록
+      </button>
+    </div>
+
+    <!-- 질문 리스트 -->
     <div id="questionList"></div>
 
   </div>
@@ -180,112 +180,155 @@ body {
 </div>
 
 <script type="module">
-  import { auth, db } from "./firebase.js";
-  import { onAuthStateChanged, signOut }
-    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { collection, getDocs, doc, getDoc, addDoc, deleteDoc }
-from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-  const nicknameEl = document.querySelector(".nickname");
-  const pointsEl = document.querySelector(".points");
-  const logoutBtn = document.querySelector(".logout");
-  const questionList = document.getElementById("questionList");
+import { auth, db } from "./firebase.js";
+import { onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
+import { 
+  collection, 
+  getDocs, 
+  doc, 
+  getDoc, 
+  addDoc, 
+  deleteDoc 
+} from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-  // 🔹 로그인 상태 확인
-  onAuthStateChanged(auth, async (user) => {
-    if (!user) {
-      window.location.href = "/sbh_qna/login.html";
-      return;
-    }
-
-    // 🔹 유저 정보 불러오기
-    const docRef = doc(db, "users", user.uid);
-    const docSnap = await getDoc(docRef);
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-      nicknameEl.innerText = data.nickname;
-      pointsEl.innerText = data.points + "P";
-    }
-
-    // 🔹 질문 목록 불러오기
-    loadQuestions();
-  });
+const nicknameEl = document.querySelector(".nickname");
+const pointsEl = document.querySelector(".points");
+const logoutBtn = document.querySelector(".logout");
+const questionList = document.getElementById("questionList");
 
 const input = document.getElementById("questionInput");
 const submitBtn = document.getElementById("submitQuestion");
 
+// 로그인 확인
+onAuthStateChanged(auth, async (user) => {
+  if (!user) {
+    window.location.href = "/sbh_qna/login.html";
+    return;
+  }
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    nicknameEl.innerText = data.nickname;
+    pointsEl.innerText = data.points + "P";
+  }
+
+  loadQuestions();
+});
+
+// 질문 등록
 submitBtn.addEventListener("click", async () => {
   const title = input.value.trim();
-
-  if (!title) {
-    alert("질문을 입력하세요");
-    return;
-  }
+  if (!title) return alert("질문을 입력하세요");
 
   const user = auth.currentUser;
+  if (!user) return;
 
-  if (!user) {
-    alert("로그인이 필요합니다.");
-    return;
-  }
-
-await addDoc(collection(db, "questions"), {
-  title: title,
-  nickname: nicknameEl.innerText,
-  answerCount: 0,
-  uid: user.uid   // 🔥 추가
-});
+  await addDoc(collection(db, "questions"), {
+    title,
+    nickname: nicknameEl.innerText,
+    uid: user.uid,
+    answerCount: 0
+  });
 
   input.value = "";
-  loadQuestions(); // 목록 다시 불러오기
+  loadQuestions();
 });
-  
-  // 🔹 질문 불러오기 함수
-  async function loadQuestions() {
-    const querySnapshot = await getDocs(collection(db, "questions"));
 
-    questionList.innerHTML = "";
+// 질문 불러오기
+async function loadQuestions() {
+  const snapshot = await getDocs(collection(db, "questions"));
+  questionList.innerHTML = "";
 
-querySnapshot.forEach((questionDoc) => {
-  const data = questionDoc.data();
+  snapshot.forEach(async (questionDoc) => {
+    const data = questionDoc.data();
 
-  const card = document.createElement("div");
-      card.className = "card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-card.innerHTML = `
-  <div class="card-title">${data.title}</div>
-  <div class="card-meta">
-    작성자: ${data.nickname} | 답변 ${data.answerCount || 0}개
-  </div>
-`;
+    card.innerHTML = `
+      <div class="card-title">${data.title}</div>
+      <div class="card-meta">
+        작성자: ${data.nickname} | 답변 ${data.answerCount || 0}개
+      </div>
+    `;
 
-if (auth.currentUser && auth.currentUser.uid === data.uid) {
-  const deleteBtn = document.createElement("button");
-  deleteBtn.innerText = "삭제";
-  deleteBtn.style.marginTop = "8px";
-  deleteBtn.style.padding = "4px 8px";
+    // 삭제 버튼
+    if (auth.currentUser.uid === data.uid) {
+      const deleteBtn = document.createElement("button");
+      deleteBtn.innerText = "삭제";
+      deleteBtn.style.marginTop = "8px";
 
-  deleteBtn.addEventListener("click", async () => {
-  await deleteDoc(doc(db, "questions", questionDoc.id));
-    loadQuestions();
-  });
+      deleteBtn.addEventListener("click", async () => {
+        await deleteDoc(doc(db, "questions", questionDoc.id));
+        loadQuestions();
+      });
 
-  card.appendChild(deleteBtn);
-}  
+      card.appendChild(deleteBtn);
+    }
 
-      questionList.appendChild(card);
+    // 답변 리스트
+    const answerList = document.createElement("div");
+    answerList.style.marginTop = "10px";
+    card.appendChild(answerList);
+
+    const answerSnapshot = await getDocs(
+      collection(db, "questions", questionDoc.id, "answers")
+    );
+
+    answerSnapshot.forEach((answerDoc) => {
+      const answerData = answerDoc.data();
+      const item = document.createElement("div");
+      item.style.fontSize = "13px";
+      item.style.marginTop = "5px";
+      item.innerText =
+        "↳ " + answerData.nickname + " : " + answerData.content;
+      answerList.appendChild(item);
     });
-  }
 
-  // 🔹 로그아웃
-  logoutBtn.addEventListener("click", async () => {
-    await signOut(auth);
-    window.location.href = "/sbh_qna/login.html";
+    // 답변 입력창
+    const answerInput = document.createElement("input");
+    answerInput.placeholder = "답변을 입력하세요";
+    answerInput.style.width = "70%";
+    answerInput.style.marginTop = "8px";
+
+    const answerBtn = document.createElement("button");
+    answerBtn.innerText = "답변";
+    answerBtn.style.marginLeft = "8px";
+
+    answerBtn.addEventListener("click", async () => {
+      const content = answerInput.value.trim();
+      if (!content) return alert("답변을 입력하세요");
+
+      await addDoc(
+        collection(db, "questions", questionDoc.id, "answers"),
+        {
+          content,
+          nickname: nicknameEl.innerText,
+          uid: auth.currentUser.uid
+        }
+      );
+
+      answerInput.value = "";
+      loadQuestions();
+    });
+
+    card.appendChild(answerInput);
+    card.appendChild(answerBtn);
+
+    questionList.appendChild(card);
   });
+}
+
+// 로그아웃
+logoutBtn.addEventListener("click", async () => {
+  await signOut(auth);
+  window.location.href = "/sbh_qna/login.html";
+});
 </script>
 
 </body>
 </html>
-
-
-
