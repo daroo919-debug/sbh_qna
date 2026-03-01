@@ -2,43 +2,81 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>SBH 문답 시스템</title>
+<title>求援</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
-  background: #f2f4f7;
+  background: #f9fafb;
 }
 
-/* 상단 바 */
-header {
-  height: 60px;
-  background: #1f2937;
-  color: white;
+/* ===== 헤더 ===== */
+.header {
+  height: 70px;
+  padding: 0 40px;
+  background-color: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 20px;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-/* 전체 레이아웃 */
+.logo {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.dot {
+  color: #2563eb;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.points {
+  color: #2563eb;
+  font-weight: 600;
+}
+
+.nickname {
+  color: #374151;
+}
+
+.logout {
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #f3f4f6;
+}
+
+.logout:hover {
+  background: #e5e7eb;
+}
+
+/* ===== 레이아웃 ===== */
 .layout {
   display: flex;
-  height: calc(100vh - 60px);
+  min-height: calc(100vh - 70px);
 }
 
 /* 사이드바 */
 .sidebar {
   width: 220px;
-  background: white;
-  border-right: 1px solid #ddd;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
   padding-top: 20px;
 }
 
 .menu-item {
   padding: 15px 20px;
   cursor: pointer;
+  color: #374151;
 }
 
 .menu-item:hover {
@@ -49,7 +87,6 @@ header {
 .main {
   flex: 1;
   padding: 30px;
-  overflow-y: auto;
 }
 
 /* 배너 */
@@ -67,6 +104,7 @@ header {
   padding: 15px;
   border-radius: 10px;
   margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
 }
 
 /* 질문 카드 */
@@ -75,7 +113,7 @@ header {
   padding: 15px;
   border-radius: 10px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  border: 1px solid #e5e7eb;
 }
 
 .card-title {
@@ -92,10 +130,15 @@ header {
 
 <body>
 
-<header>
-  <div><b>📘 SBH 문답 시스템</b></div>
-  <div>
-    포인트: 120 | 홍길동
+<header class="header">
+  <div class="logo">
+    구원<span class="dot">.</span>
+  </div>
+
+  <div class="header-right">
+    <div class="points">120P</div>
+    <div class="nickname">홍길동</div>
+    <div class="logout">로그아웃</div>
   </div>
 </header>
 
