@@ -183,7 +183,7 @@ body {
   import { auth, db } from "./firebase.js";
   import { onAuthStateChanged, signOut }
     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
-import { collection, getDocs, doc, getDoc, addDoc }
+import { collection, getDocs, doc, getDoc, addDoc, deleteDoc }
 from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
   const nicknameEl = document.querySelector(".nickname");
   const pointsEl = document.querySelector(".points");
@@ -229,11 +229,12 @@ submitBtn.addEventListener("click", async () => {
     return;
   }
 
-  await addDoc(collection(db, "questions"), {
-    title: title,
-    nickname: nicknameEl.innerText,
-    answerCount: 0
-  });
+await addDoc(collection(db, "questions"), {
+  title: title,
+  nickname: nicknameEl.innerText,
+  answerCount: 0,
+  uid: user.uid   // 🔥 추가
+});
 
   input.value = "";
   loadQuestions(); // 목록 다시 불러오기
@@ -251,12 +252,26 @@ querySnapshot.forEach((doc) => {
   const card = document.createElement("div");
       card.className = "card";
 
-      card.innerHTML = `
-        <div class="card-title">${data.title}</div>
-        <div class="card-meta">
-          작성자: ${data.nickname} | 답변 ${data.answerCount || 0}개
-        </div>
-      `;
+card.innerHTML = `
+  <div class="card-title">${data.title}</div>
+  <div class="card-meta">
+    작성자: ${data.nickname} | 답변 ${data.answerCount || 0}개
+  </div>
+`;
+
+if (auth.currentUser && auth.currentUser.uid === data.uid) {
+  const deleteBtn = document.createElement("button");
+  deleteBtn.innerText = "삭제";
+  deleteBtn.style.marginTop = "8px";
+  deleteBtn.style.padding = "4px 8px";
+
+  deleteBtn.addEventListener("click", async () => {
+    await deleteDoc(doc(db, "questions", document.id));
+    loadQuestions();
+  });
+
+  card.appendChild(deleteBtn);
+}  
 
       questionList.appendChild(card);
     });
@@ -271,6 +286,7 @@ querySnapshot.forEach((doc) => {
 
 </body>
 </html>
+
 
 
 
